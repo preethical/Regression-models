@@ -1,0 +1,39 @@
+---
+title: "Is an Automatic transmission better than a manual transmission"
+author: "preethi"
+date: "11/20/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+
+Here at *MotorTrend*, we want to answer to very simple questions  
+
+1) Is an automatic or manual transmission better for MPG
+2) Can I quantify the MPG difference between automatic and manual transmissions
+
+We will be using the mtcars dataset to answer these questions  
+
+## MTCARS dataset
+
+We will begin with describing the mtcars dataset. This data was extracted from the 1974 *MotorTrend* magazine and comprises of fuel consumption and 10 other aspects of automobile design (mpg, number of cylinders, displacement, transmission, engine etc...) for 32 automobiles
+
+We can look at the first few rows of this dataset now
+
+```{r mtcars}
+summary(mtcars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
