@@ -22,18 +22,70 @@ We will be using the mtcars dataset to answer these questions
 
 We will begin with describing the mtcars dataset. This data was extracted from the 1974 *MotorTrend* magazine and comprises of fuel consumption and 10 other aspects of automobile design (mpg, number of cylinders, displacement, transmission, engine etc...) for 32 automobiles
 
-We can look at the first few rows of this dataset now
+We can look at the first few rows of this dataset now  
 
-```{r mtcars}
-summary(mtcars)
+```{r mtcars_head}
+head(mtcars)
 ```
 
-## Including Plots
+From this, we can see that am, the transmission is a binary variable 0 = automatic and 1= manual
+Now let us get a summary of the variables we are interested in  
 
-You can also embed plots, for example:
+```{r mtcars_summary}
+summary(mtcars$mpg)
+summary(mtcars$am)
+```
+From the above we can see that the mean miles per gallon is 20.09 and the mean of transmission being 0.40 shows that there are roughly similar number of cars in automatic and manual with slightly more automatic cars (median = 0). 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Now let us subset this data
+```{r mtcars_subset}
+automatic <- subset(mtcars, am == 0)
+manual <- subset(mtcars, am == 1)
+
+mean(automatic$mpg)
+mean(manual$mpg)
+```
+From here we can see that there are 19 observations (cars) are automatic and 13 are manual. 
+We can also see that the mean mpg for the automatic transmission vehicles 17.15mpg and the mean for the manual transmission is 24.39mpg. 
+For clarity let us graph this data  
+
+```{r mtcars_graph}
+library(ggplot2)
+mtcars$am <-  as.factor(mtcars$am)
+levels(mtcars$am)<- c("Automatic", "Manual")
+graph <- ggplot(mtcars,aes(x = am, y = mpg))+geom_boxplot(aes(fill=am))
+graph
+```
+We can mostly see that MPG is better with a manual transmision compared to an Automatic transmission from that graph. However, there is a bit of overlap and to see if there is truly an effect, we can perform a student t.test to test the null hypothesis (H0) that there is no difference between the MPG for manual and automatic transmission
+
+```{r mtcars_ttest}
+ttest <- t.test(mpg~am,data=mtcars)
+ttest
+```
+As the *p-value* is less than 0.05 (p-value=0.001) we can reject the null hypothesis. 
+Now that we rejected the null hypothesis we can fit some models to see if we can quantify the mpg difference with automatic and manual transmission. 
+
+the first model is a linear regression model with mpg as the outcome and just transmission type as a predictor
+
+```{r mtcars_model1}
+fit1 <- lm(mpg~am, data = mtcars)
+summary(fit1)
+```
+From the above model we can see that the residuals are pretty symmetrical around the mean. 
+The mean MPG of an automatic transmission is 17.14 and with a manual transmission this increases by 7.24 mpg. The p-values are also < 0.05 however the Multiple R-squared value is just 0.34
+
+```{r mtcars_model1}
+
+fit1 <- lm(mpg~., data = mtcars)
+summary(fit1)$coeff
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+
+
+
