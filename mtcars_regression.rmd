@@ -86,9 +86,8 @@ When we include all the variables as predictor values we see that none of the pr
 So in R there is a function called step which chooses the possible model in AIC (Akaike information criterion which is an estimator of out of sample prediction error and thereby the relative quality of a model) in a step-wise algorithm
 
 ```{r mtcars_model3}
-
-fit3 <- step(lm(mpg~., data = mtcars))
-summary(fit2)
+fit_3 <- (step(lm(mpg~.,data = mtcars),trace=0))
+summary(fit_3)
 ```
 ## Conclusion
 In accordance with this function, there is a 2.9 mpg increase with manual transmission compared to an automatic transmission and this value is signification (p < 0.05). But it is not the variable that shows as an association with mpg. Every 1000lb weight increase will see a decrease of roughly 4 mpg and with every quarter mile time increase shows an increase of about 1.2 mpg
@@ -120,10 +119,8 @@ mtcars %>% gather(-mpg, key = "var", value = "value") %>%
 ```
 
 ### <a id="figure_1=3"></a> Figure 3
-```{r mtcars_model3}
-fit2_resid <- resid(fit2)
-par(mfrow = c(2,2))
-plot(fit2)
+```{r mtcars_graph3}
+plot(fit_3)
 ```
 
 The first plot, a simple scatter plot between the fitted and the residual values is more or less random except for a few outliers.   
