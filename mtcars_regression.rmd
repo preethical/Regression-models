@@ -46,17 +46,11 @@ mean(automatic$mpg)
 mean(manual$mpg)
 ```
 From here we can see that there are 19 observations (cars) are automatic and 13 are manual. 
-We can also see that the mean mpg for the automatic transmission vehicles 17.15mpg and the mean for the manual transmission is 24.39mpg. 
-For clarity let us graph this data  
+We can also see that the mean mpg for the automatic transmission vehicles 17.15mpg and the mean for the manual transmission is 24.39mpg.
+We have plotted this data in the [figure 1] (#figure_1) in the appendix.
 
-```{r mtcars_graph}
-library(ggplot2)
-mtcars$am <-  as.factor(mtcars$am)
-levels(mtcars$am)<- c("Automatic", "Manual")
-graph <- ggplot(mtcars,aes(x = am, y = mpg))+geom_boxplot(aes(fill=am))
-graph
-```
-We can mostly see that MPG is better with a manual transmision compared to an Automatic transmission from that graph. However, there is a bit of overlap and to see if there is truly an effect, we can perform a student t.test to test the null hypothesis (H0) that there is no difference between the MPG for manual and automatic transmission
+## Hypothesis Testing
+We can mostly see that MPG is better with a manual transmision compared to an Automatic transmission from that graph. However, there is a bit of overlap and to see if there is truly an effect, we can perform a student t.test to test the null hypothesis (H0) that there is no difference between the MPG for manual and automatic transmission  
 
 ```{r mtcars_ttest}
 ttest <- t.test(mpg~am,data=mtcars)
@@ -65,26 +59,77 @@ ttest
 As the *p-value* is less than 0.05 (p-value=0.001) we can reject the null hypothesis. 
 Now that we rejected the null hypothesis we can fit some models to see if we can quantify the mpg difference with automatic and manual transmission. 
 
-the first model is a linear regression model with mpg as the outcome and just transmission type as a predictor
+A plot of all the variables against mpg is presented in [figure 2] (#figure_2) of the appendix.
+
+## Model Fitting
+
+We can see quite a few variables that look like they may be correlated. so lets first try a linear regression model with mpg as the outcome and just transmission type as a predictor  
+
 
 ```{r mtcars_model1}
 fit1 <- lm(mpg~am, data = mtcars)
 summary(fit1)
 ```
+
 From the above model we can see that the residuals are pretty symmetrical around the mean. 
-The mean MPG of an automatic transmission is 17.14 and with a manual transmission this increases by 7.24 mpg. The p-values are also < 0.05 however the Multiple R-squared value is just 0.34
+The mean MPG of an automatic transmission is 17.14 and with a manual transmission this increases by 7.24 mpg. The p-values are also < 0.05 however the Multiple R-squared value is just 0.34, which suggests that our model explains only 34% of the variability in the data.
+So let's move on and try to fit all our predictor values with mpg as the outcome variable  
 
-```{r mtcars_model1}
+```{r mtcars_model2}
 
-fit1 <- lm(mpg~., data = mtcars)
-summary(fit1)$coeff
+fit2 <- lm(mpg~., data = mtcars)
+summary(fit2)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+When we include all the variables as predictor values we see that none of the predictor variables seem to correlated with mpg other than a loose relationship with weight. The Multiple R-squared is now 81% which is pretty high but we have overfitted the model at this stage.  
+
+So in R there is a function called step which chooses the possible model in AIC (Akaike information criterion which is an estimator of out of sample prediction error and thereby the relative quality of a model) in a step-wise algorithm
+
+```{r mtcars_model3}
+
+fit3 <- step(lm(mpg~., data = mtcars))
+summary(fit2)
+```
+## Conclusion
+In accordance with this function, there is a 2.9 mpg increase with manual transmission compared to an automatic transmission and this value is signification (p < 0.05). But it is not the variable that shows as an association with mpg. Every 1000lb weight increase will see a decrease of roughly 4 mpg and with every quarter mile time increase shows an increase of about 1.2 mpg
+
+The adjusted R-squared value is 83% which means that a large part of the variation in the data is described by this model. 
+
+The residual plots [figure 3] (#figure_3) are given in the appendix and they show that the data is mostly linear (the gentle skewedness could be due to the small sample size). 
 
 
 
+## Appendix
 
+### <a id="figure_1"></a> Figure 1
+```{r mtcars_graph}
+library(ggplot2)
+mtcars$am <-  as.factor(mtcars$am)
+levels(mtcars$am)<- c("Automatic", "Manual")
+graph <- ggplot(mtcars,aes(x = am, y = mpg))+geom_boxplot(aes(fill=am))
+graph
+```
+
+### <a id="figure_2"></a> Figure 2
+```{r mtcars_graph2}
+library(tidyr)
+library(ggplot2)
+mtcars %>% gather(-mpg, key = "var", value = "value") %>%
+  ggplot (aes(x = value, y = mpg))+ geom_point() +facet_wrap(~ var, scales = "free") + theme_bw()
+
+```
+
+### <a id="figure_1=3"></a> Figure 3
+```{r mtcars_model3}
+fit2_resid <- resid(fit2)
+par(mfrow = c(2,2))
+plot(fit2)
+```
+
+The first plot, a simple scatter plot between the fitted and the residual values is more or less random except for a few outliers.   
+The Normal Q-Q plot is a Normal Probability Plot, which gives an almost straight line as the errors are mostly normally distributed. 
+The scale-location plot shows that the residuals are mostly spread equally along the ranges of the predictor. It is homoscedastic. 
+In the Cook's distance we can see that the Ford Pantera and Merc 230 seem to exert some influence. 
 
 
 
